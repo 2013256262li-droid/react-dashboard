@@ -1,0 +1,41 @@
+@use '../../styles/app' as *;
+
+.emptyState {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  align-items: center;
+  background: rgba($gray-200, 0.5);
+  border-radius: 50%;
+  color: $gray-500;
+  display: flex;
+  height: 5rem;
+  justify-content: center;
+  width: 5rem;
+
+  svg {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+}
+
+.emptyStateTitle {
+  color: $gray-700;
+  font-size: 1.25rem;
+  font-weight: $font-weight-semi-bold;
+  margin: 0;
+}
+
+.emptyStateMessage {
+  color: $gray-500;
+  font-size: $font-size-base;
+  margin: 0;
+  max-width: 20rem;
+}

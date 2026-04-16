@@ -1,0 +1,77 @@
+@use '../../styles/app' as *;
+
+.statCard {
+  height: 100%;
+  padding: 1.25rem;
+}
+
+.statCardContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.statCardIcon {
+  align-items: center;
+  background: rgba($brand-primary, 0.08);
+  border-radius: 0.75rem;
+  color: $brand-primary;
+  display: flex;
+  height: 3.5rem;
+  justify-content: center;
+  min-width: 3.5rem;
+  width: 3.5rem;
+
+  svg {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+}
+
+.statCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statCardTitle {
+  color: $gray-500;
+  font-size: $font-size-small;
+  margin: 0;
+}
+
+.statCardValue {
+  color: $text-color;
+  font-size: 1.75rem;
+  font-weight: $font-weight-bold;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.statCardTrend {
+  align-items: center;
+  display: flex;
+  font-size: $font-size-small;
+  gap: 0.25rem;
+}
+
+.statCardTrendIcon {
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
+.statCardTrendValue {
+  font-weight: $font-weight-semi-bold;
+}
+
+.statCardTrendText {
+  color: $gray-500;
+}
+
+.trend-success {
+  color: $brand-success;
+}
+
+.trend-danger {
+  color: $brand-danger;
+}
