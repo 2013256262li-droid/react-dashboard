@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Alert,
   Badge,
@@ -23,12 +23,21 @@ import {
   Eye,
   Person,
   Telephone,
+  People,
+  Cash,
+  Activity,
+  EyeFill,
 } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { fetchPosts } from '../../features/posts/postsSlice';
 import Widget from '../../components/Widget';
+import StatCard from './StatCard';
+import DashboardChart from './DashboardChart';
+import TimeframeSelector from './TimeframeSelector';
+import EmptyState from './EmptyState';
+import { getDashboardData, DEFAULT_TIMEFRAME } from './dashboardData';
 import s from './Dashboard.module.scss';
 
 const formatDate = (value) =>
@@ -74,6 +83,29 @@ const Dashboard = () => {
   const posts = useAppSelector((state) => state.posts.items);
   const fetchStatus = useAppSelector((state) => state.posts.fetchStatus);
   const [isDropdownOpened, setIsDropdownOpened] = useState(false);
+  
+  const getStoredTimeframe = useCallback(() => {
+    try {
+      const stored = localStorage.getItem('dashboard_timeframe');
+      if (stored && ['7d', '30d', '90d'].includes(stored)) {
+        return stored;
+      }
+    } catch (e) {
+      console.warn('Unable to access localStorage:', e);
+    }
+    return DEFAULT_TIMEFRAME;
+  }, []);
+
+  const [timeframe, setTimeframe] = useState(getStoredTimeframe);
+  const dashboardData = useMemo(() => getDashboardData(timeframe), [timeframe]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('dashboard_timeframe', timeframe);
+    } catch (e) {
+      console.warn('Unable to save to localStorage:', e);
+    }
+  }, [timeframe]);
 
   useEffect(() => {
     if (fetchStatus === 'idle' && posts.length === 0) {
@@ -83,6 +115,25 @@ const Dashboard = () => {
 
   const recentPosts = useMemo(() => posts.slice(0, 5), [posts]);
 
+  const handleTimeframeChange = useCallback((newTimeframe) => {
+    setTimeframe(newTimeframe);
+  }, []);
+
+  const { stats, chartData, hasData } = dashboardData;
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const formatNumber = (value) => {
+    return new Intl.NumberFormat('en-US').format(value);
+  };
+
   return (
     <div className={s.root}>
       <Breadcrumb>
@@ -90,6 +141,60 @@ const Dashboard = () => {
         <BreadcrumbItem active>Dashboard</BreadcrumbItem>
       </Breadcrumb>
       <h1 className="mb-lg">Dashboard</h1>
+      
+      <TimeframeSelector 
+        value={timeframe} 
+        onChange={handleTimeframeChange} 
+      />
+      
+      {hasData ? (
+        <>
+          <Row className="mb-lg">
+            <StatCard
+              title="Total Users"
+              value={formatNumber(stats.totalUsers)}
+              growth={stats.userGrowth}
+              icon={People}
+            />
+            <StatCard
+              title="Revenue"
+              value={formatCurrency(stats.totalRevenue)}
+              growth={stats.revenueGrowth}
+              icon={Cash}
+            />
+            <StatCard
+              title="Avg Sessions"
+              value={formatNumber(stats.avgSessions)}
+              growth={stats.sessionsGrowth}
+              icon={Activity}
+            />
+            <StatCard
+              title="Page Views"
+              value={formatNumber(stats.totalPageViews)}
+              growth={stats.pageViewsGrowth}
+              icon={EyeFill}
+            />
+          </Row>
+          
+          <Widget 
+            title={<h5>Analytics Overview</h5>}
+            className="mb-lg"
+          >
+            <DashboardChart 
+              data={chartData} 
+              hasData={hasData}
+            />
+          </Widget>
+        </>
+      ) : (
+        <Widget className="mb-lg">
+          <EmptyState 
+            title="No Analytics Data"
+            message="There is no data available for the selected time period. Try selecting a different timeframe or check back later."
+          />
+        </Widget>
+      )}
+      
       <Row>
         <Col md={6} sm={12}>
           <Widget
